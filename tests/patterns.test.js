@@ -7,7 +7,9 @@ const {
   escapeRegex,
   buildCustomPatterns,
   normalizeDomain,
-  isDomainWhitelisted
+  isDomainWhitelisted,
+  isNameLabelText,
+  looksLikeName
 } = require('../lib/patterns');
 
 function matchesForPattern(text, patternName) {
@@ -85,6 +87,33 @@ describe('iban deseni', () => {
   test('boşluklu TR IBAN\'ı yakalar', () => {
     const text = 'IBAN: TR33 0006 1005 1978 6457 8413 26';
     expect(matchesForPattern(text, 'iban')).toContain('TR33 0006 1005 1978 6457 8413 26');
+  });
+
+  test('küçük harfli "tr" önekini de yakalar', () => {
+    const text = 'iban: tr33 0006 1005 1978 6457 8413 26';
+    expect(matchesForPattern(text, 'iban')).toContain('tr33 0006 1005 1978 6457 8413 26');
+  });
+
+  test('tire ile ayrılmış IBAN\'ı da yakalar', () => {
+    const text = 'TR33-0006-1005-1978-6457-8413-26';
+    expect(matchesForPattern(text, 'iban')).toContain('TR33-0006-1005-1978-6457-8413-26');
+  });
+
+  test('boşluksuz bitişik IBAN\'ı da yakalar', () => {
+    const text = 'TR330006100519786457841326';
+    expect(matchesForPattern(text, 'iban')).toContain('TR330006100519786457841326');
+  });
+});
+
+describe('kart-maskeli deseni', () => {
+  test('yıldızla kısmen maskelenmiş kart numarasını yakalar', () => {
+    const text = 'Ziraat Bankası 5235 29** **** 0744';
+    expect(matchesForPattern(text, 'kart-maskeli')).toContain('5235 29** **** 0744');
+  });
+
+  test('hiç maskeleme karakteri yoksa (tümü rakam) yakalamaz — bu durumda "kart" kalıbı devrede', () => {
+    const text = '5235 2900 0000 0744';
+    expect(matchesForPattern(text, 'kart-maskeli')).toHaveLength(0);
   });
 });
 
@@ -181,6 +210,30 @@ describe('isim tespiti (Faz A)', () => {
     expect(matchesForPattern('Alıcı: Fatma Kaya', 'isim-baglam')).toContain('Fatma Kaya');
   });
 
+  test('İngilizce "Name:" etiketiyle de çalışır', () => {
+    expect(matchesForPattern('Name: John Smith', 'isim-baglam')).toContain('John Smith');
+  });
+
+  test('İngilizce "Recipient:" etiketiyle de çalışır', () => {
+    expect(matchesForPattern('Recipient: Jane Doe', 'isim-baglam')).toContain('Jane Doe');
+  });
+
+  test('İngilizce "Cardholder Name:" etiketiyle de çalışır', () => {
+    expect(matchesForPattern('Cardholder Name: Emily Clark', 'isim-baglam')).toContain('Emily Clark');
+  });
+
+  test('"Dr." unvanından sonraki ismi yakalar', () => {
+    expect(matchesForPattern('Dr. Ahmet Yılmaz muayenehanesi', 'isim-unvan')).toContain('Ahmet Yılmaz');
+  });
+
+  test('birleşik "Doç. Dr." unvanından sonraki ismi yakalar', () => {
+    expect(matchesForPattern('Doç. Dr. Mehmet Öz ile görüşme', 'isim-unvan')).toContain('Mehmet Öz');
+  });
+
+  test('İngilizce "Mr." unvanından sonraki ismi yakalar', () => {
+    expect(matchesForPattern('Mr. John Smith', 'isim-unvan')).toContain('John Smith');
+  });
+
   test('yaygın isim listesinden bir isim + soyadı yakalar (etiket olmadan)', () => {
     const text = 'Sipariş detayları: Hasan Yılmaz - 0532 000 00 00';
     const matches = matchesForPattern(text, 'isim-liste');
@@ -189,6 +242,34 @@ describe('isim tespiti (Faz A)', () => {
 
   test('listede olmayan bir kelimeden sonra soyadı yakalamaz', () => {
     expect(matchesForPattern('Rastgele Kelime burada', 'isim-liste')).toHaveLength(0);
+  });
+});
+
+describe('isNameLabelText / looksLikeName (etiket-değer DOM eşleştirmesi)', () => {
+  test('Türkçe etiketleri (büyük/küçük harf, sondaki iki nokta fark etmeksizin) tanır', () => {
+    expect(isNameLabelText('İsim')).toBe(true);
+    expect(isNameLabelText('Ad Soyad:')).toBe(true);
+    expect(isNameLabelText('  Alıcı Adı  ')).toBe(true);
+  });
+
+  test('İngilizce etiketleri tanır', () => {
+    expect(isNameLabelText('Name')).toBe(true);
+    expect(isNameLabelText('Recipient:')).toBe(true);
+    expect(isNameLabelText('Cardholder Name')).toBe(true);
+  });
+
+  test('isim etiketi olmayan bir metni tanımaz', () => {
+    expect(isNameLabelText('Toplam Tutar')).toBe(false);
+  });
+
+  test('iki-üç kelimelik büyük harfli bir diziyi isim gibi görür', () => {
+    expect(looksLikeName('Hasan Basri Engin')).toBe(true);
+    expect(looksLikeName('John Smith')).toBe(true);
+  });
+
+  test('tek kelimeyi veya küçük harfle başlayanı isim gibi görmez', () => {
+    expect(looksLikeName('Ankara')).toBe(false);
+    expect(looksLikeName('hasan yılmaz')).toBe(false);
   });
 });
 

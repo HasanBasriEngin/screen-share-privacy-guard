@@ -1,5 +1,5 @@
 // Ekran Guard - background service worker
-// Ctrl+Shift+B kısayolu ile aktif sekmede panik modunu açar/kapatır.
+// Ctrl+Shift+X kısayolu ile aktif sekmede panik modunu açar/kapatır.
 
 let panicActive = false;
 

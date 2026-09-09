@@ -36,8 +36,15 @@ var.
   - `normalizeDomain` / `isDomainWhitelisted`: site bazlı whitelist mantığı.
     `normalizeDomain` baştaki `www.` önekini atar ki `example.com` ve
     `www.example.com` aynı whitelist kaydına karşılık gelsin.
-  - `buildNamePatterns()`: isim tespiti Faz A — bkz. "Bilinçli tasarım
+  - `buildNamePatterns()`: isim tespiti Faz A (bağlam-çıpası + unvan + isim
+    listesi, Türkçe VE İngilizce etiketlerle) — bkz. "Bilinçli tasarım
     kararları".
+  - `isNameLabelText` / `looksLikeName` / `normalizeLabelText`: etiket ve
+    değerin AYRI DOM elemanlarında olduğu durumlar için (content.js'teki
+    `scanLabelValuePairs` tarafından kullanılır). `normalizeLabelText`
+    `toLocaleLowerCase('tr')` kullanır — standart `toLowerCase()` Türkçe
+    "İ"yi yanlış küçülttüğü için "İsim" gibi çok yaygın bir etiket
+    tanınamazdı.
   - `INPUT_SELECTOR`: kart/adres/telefon/tckn gibi **bilinen hassas** form
     alanlarını (autofill/name/autocomplete ipuçlarıyla) hedefleyen CSS seçici
     string'i.
@@ -55,6 +62,18 @@ var.
     - Diğer input/textarea/`contenteditable` alanlar: anlık değeri
       `findMatches` ile hassas bir kalıba uyarsa bulanıklaşır.
     - Çift tıklayınca 2,5 saniyeliğine açılır (`revealTemporarily`).
+  - `scanLabelValuePairs()` — **etiket ve değer AYRI DOM elemanlarında**
+    olduğunda isim tespiti (örn. `<dt>İsim</dt><dd>Hasan Yılmaz</dd>`, bir
+    tablo hücresi + yanındaki hücre, ya da bir başlık + hemen altındaki
+    satır). "Yaprak" elemanları (`label, dt, span, strong, b, td, th, div, p,
+    li`) tarar, metni `isNameLabelText` ile tanınan bir etikete tam eşit
+    olanları bulur, `findLabelValueElement()` ile İLİŞKİLİ elemanı (sonraki
+    kardeş, `dt`→`dd`, tablo hücresi komşusu, veya ebeveynin sonraki kardeşi)
+    bulur, `looksLikeName` ile değeri kontrol eder ve eşleşirse o elemanı
+    `ekran-guard-block-blur` ile bulanıklaştırır. `nameBlurEnabled` toggle'ına
+    bağlıdır. `dataset.egLabelChecked` / `dataset.egBlurredByLabel` ile
+    tekrar tekrar işlenmeyi önler; bu işaretler `removeAllBlurs()` içinde
+    temizlenir (yoksa kategori kapatılıp açıldığında yeniden taranmaz).
   - **Manuel blur** (`startManualPicker` / `applyManualBlur` / ...): kullanıcı
     popup'tan "Öğe(ler) seç ve gizle"ye basınca `START_MANUAL_PICKER` mesajı
     gelir; `mouseover`/`click`/`keydown` (Esc) dinleyicileriyle bir "element
@@ -92,7 +111,7 @@ var.
     alanları) tespiti etkiler; `INPUT_SELECTOR`'a uyan (kart/telefon/adres/
     tckn autofill ipuçlu) alanların içi doluysa her zaman blur kalır —
     kategoriden bağımsız, bilinçli bir güvenlik varsayılanı.
-  - Panik modu: `chrome.commands` (`Ctrl+Shift+B`) → `background.js` →
+  - Panik modu: `chrome.commands` (`Ctrl+Shift+X`) → `background.js` →
     `chrome.tabs.sendMessage` → `content.js` tüm sayfayı karartır. Panik modu
     whitelist'ten **etkilenmez**.
 - `lib/share-hook.js` — **MAIN dünyasında** çalışır (izole content-script
@@ -198,7 +217,19 @@ var.
       ile sayfa bazlı kalıcılık.
 - [x] **Geliştirici sırları** — AWS/GCP/Azure/GitHub/Slack/OpenAI/Anthropic/
       JWT kalıpları `lib/patterns.js`'te.
-- [x] **İsim tespiti Faz A** — bağlam-çıpası + yaygın isim listesi.
+- [x] **İsim tespiti Faz A** — bağlam-çıpası (Türkçe+İngilizce etiketler) +
+      unvan/hitap öneki (Dr./Prof./Mr./Sayın vb.) + yaygın isim listesi +
+      etiket ile değerin ayrı DOM elemanlarında olduğu durumlar
+      (`scanLabelValuePairs`).
+- [x] **IBAN/kart iyileştirmesi** — IBAN artık büyük/küçük harf duyarsız ve
+      tire/boşluk ayraçlı biçimleri de yakalıyor; kısmen yıldızla
+      maskelenmiş kart numaraları (`5235 29** **** 0744` gibi) da
+      bulanıklaşıyor.
+- [x] **Panik kısayolu düzeltmesi** — `Ctrl+Shift+B` Chrome/Brave'in yer
+      imleri çubuğu kısayoluyla çakıştığı için `Ctrl+Shift+X`'e taşındı.
+- [x] **Çoklu sekme tutarlılığı** — `ekranGuardEnabled` artık
+      `chrome.storage.onChanged` ile her sekmede ayrı ayrı dinleniyor;
+      eskiden sadece popup açıkken aktif olan sekme haberdar oluyordu.
 - [x] **Paylaşım başlangıcını algılama** — `lib/share-hook.js` (MAIN world)
       + `content.js`'te durum banner'ı.
 - [ ] İsim tespiti Faz B (NER modeli) — kapsamlı, ayrı bir iş; şu an

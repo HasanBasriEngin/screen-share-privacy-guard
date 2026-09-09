@@ -11,7 +11,9 @@
     findMatches,
     INPUT_SELECTOR,
     buildCustomPatterns,
-    isDomainWhitelisted
+    isDomainWhitelisted,
+    isNameLabelText,
+    looksLikeName
   } = self.EkranGuardPatterns;
 
   let enabled = true;
@@ -278,6 +280,50 @@
     nodes.forEach(scanTextNode);
   }
 
+  // ---------- Etiket-değer isim eşleştirmesi (başlık ayrı bir elemanda) ----------
+  // Bazı sitelerde "İsim"/"Name" gibi bir etiket ile asıl isim AYRI DOM
+  // elemanlarındadır (örn. <dt>İsim</dt><dd>Hasan Yılmaz</dd>, bir tablo
+  // hücresi + yanındaki hücre, ya da bir başlık satırı + hemen altındaki
+  // değer satırı). scanTextNode/isim-baglam bunu YAKALAYAMAZ çünkü tek bir
+  // metin node'u içinde çalışır. Bu yüzden ayrıca: küçük "yaprak" elemanları
+  // (içinde başka blok eleman olmayan) tarayıp metni tam olarak bilinen bir
+  // isim etiketine eşit olanları bulur, sonra İLİŞKİLİ elemandaki değerin
+  // isme benzeyip benzemediğine bakar.
+  const LABEL_CANDIDATE_SELECTOR = 'label, dt, span, strong, b, td, th, div, p, li';
+
+  function findLabelValueElement(labelEl) {
+    if ((labelEl.tagName === 'TD' || labelEl.tagName === 'TH') && labelEl.nextElementSibling) {
+      return labelEl.nextElementSibling;
+    }
+    if (labelEl.tagName === 'DT' && labelEl.nextElementSibling && labelEl.nextElementSibling.tagName === 'DD') {
+      return labelEl.nextElementSibling;
+    }
+    if (labelEl.nextElementSibling) return labelEl.nextElementSibling;
+    const parent = labelEl.parentElement;
+    if (parent && parent.nextElementSibling) return parent.nextElementSibling;
+    return null;
+  }
+
+  function scanLabelValuePairs(root) {
+    root.querySelectorAll(LABEL_CANDIDATE_SELECTOR).forEach((labelEl) => {
+      if (labelEl.dataset.egLabelChecked) return;
+      // Sadece "yaprak" elemanlar — içinde başka element varsa muhtemelen bir
+      // kapsayıcıdır, tek başına bir etiket değildir.
+      if (labelEl.children.length > 0) return;
+      const text = labelEl.textContent;
+      if (!text || text.length > 40) return;
+      labelEl.dataset.egLabelChecked = '1';
+      if (!isNameLabelText(text)) return;
+
+      const valueEl = findLabelValueElement(labelEl);
+      if (!valueEl || valueEl.dataset.egBlurredByLabel) return;
+      if (!looksLikeName(valueEl.textContent)) return;
+
+      valueEl.dataset.egBlurredByLabel = '1';
+      valueEl.classList.add('ekran-guard-block-blur');
+    });
+  }
+
   // ---------- Form alanları: yazarken de bulanıklaştır ----------
   // İki kategori:
   //  1) "Bilinen hassas alan" (INPUT_SELECTOR: kart/telefon/adres/tckn autofill
@@ -350,6 +396,13 @@
     });
     document.querySelectorAll('.ekran-guard-block-blur').forEach((el) => {
       el.classList.remove('ekran-guard-block-blur');
+      delete el.dataset.egBlurredByLabel;
+    });
+    // Etiket-değer eşleştirmesinin "zaten kontrol edildi" işaretlerini de
+    // temizle — yoksa kategori kapatılıp yeniden açıldığında (nameBlurEnabled
+    // toggle) scanLabelValuePairs() aynı etiketleri bir daha değerlendirmez.
+    document.querySelectorAll('[data-eg-label-checked]').forEach((el) => {
+      delete el.dataset.egLabelChecked;
     });
   }
 
@@ -543,6 +596,7 @@
       if (!enabled || whitelisted) return;
       walk(document.body);
       watchLiveFields(document.body);
+      if (nameBlurEnabled) scanLabelValuePairs(document.body);
     }
   }
 

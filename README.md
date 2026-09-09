@@ -17,9 +17,13 @@ streaming or sharing your tab.
     impossible, this pattern is **intentionally broad** — missing a few is
     safer than missing too many.
   - **Person names** (best-effort) — names right after a label like "Ad
-    Soyad:"/"Alıcı:" are caught with high confidence; a common Turkish first
-    name followed by a capitalized word is also flagged as a likely full
-    name (broader, some false positives possible — see Known limitations).
+    Soyad:"/"Name:"/"Recipient:" (Turkish and English labels both) are caught
+    with high confidence, as are names after a title like "Dr."/"Prof."/
+    "Mr."/"Sayın". A common Turkish first name followed by a capitalized word
+    is also flagged as a likely full name (broader, some false positives
+    possible — see Known limitations). This also works when the label and
+    the name sit in separate elements on the page (e.g. a "Name" heading
+    with the value in the row below it).
   - **Developer secrets** — AWS/GCP/Azure keys, GitHub/Slack tokens, OpenAI/
     Anthropic API keys, JWTs.
 - **Blurs while you type, too** — known sensitive fields (card, phone,
@@ -28,7 +32,7 @@ streaming or sharing your tab.
   inputs, textareas, contenteditable boxes) blur live as soon as what you
   type matches a sensitive pattern. Double-click a blurred field to peek for
   2.5 seconds.
-- **Panic mode** (`Ctrl+Shift+B` or the red button in the popup): instantly
+- **Panic mode** (`Ctrl+Shift+X` or the red button in the popup): instantly
   darkens the whole page — for emergencies during a live stream.
 - Clicking a blurred piece of text reveals it for 2.5 seconds, then it blurs
   again automatically.
