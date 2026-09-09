@@ -3,7 +3,6 @@
   "name": "Ekran Guard - Yayın Gizlilik Koruması",
   "version": "1.0.0",
   "description": "Ekran paylaşımı sırasında adres, telefon, kredi kartı ve TC kimlik no gibi hassas bilgileri otomatik olarak bulanıklaştırır.",
-  "default_locale": "tr",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "icons": {
