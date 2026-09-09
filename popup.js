@@ -136,5 +136,20 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.customPatterns) renderCustomList(changes.customPatterns.newValue || []);
 });
 
+// ---------- Manuel blur ----------
+const pickerBtn = document.getElementById('pickerBtn');
+const clearManualBtn = document.getElementById('clearManualBtn');
+
+pickerBtn.addEventListener('click', async () => {
+  // Popup, sayfaya tıklanır tıklanmaz odağını kaybedip kapanır — bu yüzden
+  // seçim modu content.js'te bağımsız çalışır, popup kapansa da devam eder.
+  await notifyContentScript('START_MANUAL_PICKER');
+  window.close();
+});
+
+clearManualBtn.addEventListener('click', async () => {
+  await notifyContentScript('CLEAR_MANUAL_BLURS');
+});
+
 initWhitelist();
 loadCustomPatterns();

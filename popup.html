@@ -40,12 +40,20 @@
 
   <div class="eg-section">
     <strong>Özel kalıplar</strong>
-    <p class="eg-section-hint">Her zaman gizlenmesini istediğin bir metin ekle (örn. kendi adresin).</p>
+    <p class="eg-section-hint">Her zaman gizlenmesini istediğin bir metin ekle (örn. kendi adın veya adresin).</p>
     <div class="eg-custom-add">
       <input type="text" id="customInput" placeholder="Örn. Cumhuriyet Mah. No:15" />
       <button id="customAddBtn">Ekle</button>
     </div>
     <ul id="customList" class="eg-custom-list"></ul>
+  </div>
+
+  <div class="eg-section">
+    <strong>Manuel blur</strong>
+    <p class="eg-section-hint">Regex'in yakalayamadığı bir görsel/öğe mi var? Elle seçip kalıcı gizle.</p>
+    <button id="pickerBtn" class="eg-secondary-btn">🖱️ Bir öğe seç ve gizle</button>
+    <button id="clearManualBtn" class="eg-secondary-btn eg-secondary-btn-muted">Bu sayfadaki manuel blur'ları temizle</button>
+    <p class="eg-section-hint">İpucu: manuel gizlenmiş bir öğeyi kaldırmak için üzerine <kbd>Ctrl</kbd>+tıkla.</p>
   </div>
 
   <div class="eg-footer">

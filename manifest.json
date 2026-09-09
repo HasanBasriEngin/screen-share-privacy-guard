@@ -16,7 +16,14 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["lib/patterns.js", "content.js"],
+      "js": ["lib/share-hook.js"],
+      "world": "MAIN",
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["lib/turkish-names.js", "lib/patterns.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_start",
       "all_frames": true

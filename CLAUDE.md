@@ -1,103 +1,217 @@
 # Ekran Guard — Proje Bağlamı
 
 Chrome eklentisi (Manifest V3). Yayıncılar ekran/sekme paylaşırken kart no,
-TC kimlik, telefon, IBAN, e-posta ve ev adresi gibi hassas bilgilerin
-ekranda görünmesini engelliyor.
+TC kimlik, telefon, IBAN, e-posta, ev adresi, kişi isimleri ve geliştirici
+sırları (API anahtarları/token'lar) gibi hassas bilgilerin ekranda
+görünmesini engelliyor. Ayrıca regex'in yakalayamadığı içerikler için manuel
+blur ve sayfanın kendi ekran paylaşımını başlattığı anı algılama özellikleri
+var.
 
 ## Mimari
 
-- `manifest.json` — MV3 tanımı, `content_scripts` tüm sayfalara `document_start`'ta
-  enjekte edilir (`lib/patterns.js` önce, `content.js` sonra yüklenir). `icons`
-  ve `action.default_icon` altında 16/48/128px ikonlar tanımlı.
+- `manifest.json` — MV3 tanımı. İki ayrı `content_scripts` girişi var:
+  1. `lib/share-hook.js`, **`"world": "MAIN"`** ile sayfanın kendi JS
+     bağlamında çalışır (paylaşım algılama için, bkz. aşağı).
+  2. `lib/turkish-names.js` → `lib/patterns.js` → `content.js` sırasıyla,
+     normal izole content-script dünyasında.
+  `icons` ve `action.default_icon` altında 16/48/128px ikonlar tanımlı.
+- `lib/turkish-names.js` — `COMMON_TURKISH_FIRST_NAMES`: yaygın ~200 Türkçe
+  ilk isimden oluşan küçük, eklentiye gömülü bir liste (ağa istek yok).
+  İsim tespiti Faz A'da kullanılır.
 - `lib/patterns.js` — saf mantık (DOM'a, `chrome.*`'a bağımlı değil), hem
   content script'e `self.EkranGuardPatterns` global'i üzerinden hem de Jest
   testlerine `module.exports` ile aynı kod üzerinden hizmet eder (UMD kalıbı):
   - `getPatterns()`: regex + doğrulama fonksiyonu + etiket dizisini **taze**
-    döndürür (paylaşılan `lastIndex` durumu sızmasın diye). Yeni bir veri türü
-    eklemek için buraya bir obje eklemek yeterli.
+    döndürür (paylaşılan `lastIndex` durumu sızmasın diye). Kapsadığı
+    kategoriler: kart (Luhn), TC kimlik (checksum), IBAN, telefon, e-posta,
+    adres, geliştirici sırları (AWS/GCP/Azure/GitHub/Slack/OpenAI/Anthropic/
+    JWT) ve isim (Faz A, aşağıda detaylı).
   - `luhnValid` / `isValidCard` / `isValidTCKN`: doğrulama fonksiyonları.
+  - `findMatches(text, patterns)`: verilen metinde doğrulanmış eşleşmeleri
+    konumlarıyla döndürür — hem statik sayfa metni taramasında hem form
+    alanlarının anlık değerini kontrol ederken kullanılan **tek** eşleştirme
+    fonksiyonu (kopya mantık yok).
   - `escapeRegex` / `buildCustomPatterns`: kullanıcı tanımlı düz metinleri
     (popup'tan eklenen) güvenli regex kalıplarına çevirir.
   - `normalizeDomain` / `isDomainWhitelisted`: site bazlı whitelist mantığı.
     `normalizeDomain` baştaki `www.` önekini atar ki `example.com` ve
     `www.example.com` aynı whitelist kaydına karşılık gelsin.
-  - `INPUT_SELECTOR`: kart/adres/telefon autofill alanlarını hedefleyen CSS
-    seçici string'i.
+  - `buildNamePatterns()`: isim tespiti Faz A — bkz. "Bilinçli tasarım
+    kararları".
+  - `INPUT_SELECTOR`: kart/adres/telefon/tckn gibi **bilinen hassas** form
+    alanlarını (autofill/name/autocomplete ipuçlarıyla) hedefleyen CSS seçici
+    string'i.
 - `content.js` — DOM ile ilgilenen kısım, `EkranGuardPatterns`'ı kullanır:
   - `activePatterns()` — sabit `PATTERNS`'a, storage'dan gelen
     `customPatterns`'ı da ekler.
   - `walk()` — `TreeWalker` ile DOM'daki metin node'larını gezer, eşleşenleri
-    `<span class="ekran-guard-blur">` içine alır.
-  - `protectInputs()` — `INPUT_SELECTOR`'a uyan form alanlarını (kart/adres/
-    telefon autofill alanları) odaklanmadıkça bulanık tutar.
+    `<span class="ekran-guard-blur">` içine alır. `contenteditable` alanların
+    içini **sarmalamaz** (imleç konumu bozulmasın diye) — onlar
+    `watchLiveFields()` ile bütün eleman bazında korunur.
+  - `watchLiveFields()` — form alanlarını **yazarken de** korur, odaklanma
+    durumundan bağımsız:
+    - `INPUT_SELECTOR`'a uyan bilinen hassas alanlar: içi doluysa her zaman
+      bulanık (autofill ile dolsun, elle yazılsın fark etmez).
+    - Diğer input/textarea/`contenteditable` alanlar: anlık değeri
+      `findMatches` ile hassas bir kalıba uyarsa bulanıklaşır.
+    - Çift tıklayınca 2,5 saniyeliğine açılır (`revealTemporarily`).
+  - **Manuel blur** (`startManualPicker` / `applyManualBlur` / ...): kullanıcı
+    popup'tan "Bir öğe seç ve gizle"ye basınca `START_MANUAL_PICKER` mesajı
+    gelir; `mouseover`/`click`/`keydown` (Esc) dinleyicileriyle bir "element
+    picker" modu açılır (devtools'un öğe seçicisine benzer, kırmızı kesikli
+    outline + üstte rozet). Seçilen öğeye `getElementPath()` ile bir CSS yolu
+    üretilir, `chrome.storage.sync.manualBlurs[hostname+pathname]` altında
+    kalıcı saklanır ve `init()` içinde `loadManualBlurs()` ile her sayfa
+    yüklemesinde yeniden uygulanır. Normal modda `Ctrl/Cmd+tık` ile kaldırılır.
+    Popup, sayfaya tıklanır tıklanmaz kapanacağı için picker modu **popup
+    kapansa da** `content.js` içinde bağımsız çalışmaya devam eder.
+  - **Paylaşım algılama banner'ı** — `lib/share-hook.js`'ten gelen
+    `ekran-guard:share-start` / `-end` `window` event'lerini dinler, ekranın
+    sağ üstünde durum banner'ı gösterir (aktifse yeşil/geçici, kapalıysa veya
+    whitelist'teyse turuncu/kalıcı + "Şimdi Aç" butonu).
   - `MutationObserver` — sonradan yüklenen içerikleri (SPA, chat widget'ları)
     de tarar.
   - Site whitelist'te ise (`isDomainWhitelisted`) hiç taramaz; `chrome.storage.
-    onChanged` ile whitelist/özel kalıp/açma-kapama değişikliklerine sayfa
-    yenilenmeden tepki verir.
+    onChanged` ile whitelist/özel kalıp/manuel blur/açma-kapama
+    değişikliklerine sayfa yenilenmeden tepki verir.
   - Panik modu: `chrome.commands` (`Ctrl+Shift+B`) → `background.js` →
     `chrome.tabs.sendMessage` → `content.js` tüm sayfayı karartır. Panik modu
-    whitelist'ten **etkilenmez** (bilinçli karar: acil durumda site whitelist'te
-    olsa bile kullanıcı hâlâ panik tuşuyla ekranı karartabilmeli).
-- `content.css` — blur efektleri, panik modu overlay'i.
+    whitelist'ten **etkilenmez**.
+- `lib/share-hook.js` — **MAIN dünyasında** çalışır (izole content-script
+  dünyasında DEĞİL). `navigator.mediaDevices.getDisplayMedia`'yı sarmalar;
+  sayfa (Meet/Zoom-web/Discord-web gibi) kendi ekran paylaşımını
+  başlattığında `window.dispatchEvent` ile `content.js`'e haber verir. Sebep:
+  izole dünyadan yapılan bir monkey-patch sayfanın kendi kodunun gördüğü
+  API'yi etkilemez (ayrı JS heap). `chrome.*` API'lerine buradan erişilemez.
+- `content.css` — blur efektleri, panik modu overlay'i, manuel blur/picker
+  stilleri, paylaşım banner'ı.
 - `background.js` — sadece komut (kısayol) yönlendirme ve ilk kurulum ayarı.
 - `popup.html/css/js` — açma/kapama toggle'ı, panik butonu, "bu sitede kapat"
-  whitelist toggle'ı ve özel kalıp ekleme/silme listesi. `lib/patterns.js`'i
-  `window.EkranGuardPatterns` olarak kullanır (`normalizeDomain`,
-  `isDomainWhitelisted`).
+  whitelist toggle'ı, özel kalıp ekleme/silme listesi, manuel blur seç/temizle
+  butonları. `lib/patterns.js`'i `window.EkranGuardPatterns` olarak kullanır.
 - `icons/` — `generate_icons.py` (Pillow) ile üretilen 16/48/128px PNG ikonlar;
   kaynak script depoda tutulmuyor, gerekirse yeniden üretilebilir (kırmızı
   kalkan + bulanık çizgiler motifi, marka renkleriyle: `#111318` zemin,
   `#ff3c3c` kalkan, `#f1f1f4` çizgiler).
 - `lib/patterns.js` + `tests/patterns.test.js` — Jest ile birim testler
-  (`npm install`, `npm test`). Regex'lerin ve doğrulama fonksiyonlarının
-  gerçek metin üzerinde beklendiği gibi çalıştığını doğrular.
+  (`npm install`, `npm test`, şu an 42 test). Regex'lerin ve doğrulama
+  fonksiyonlarının gerçek metin üzerinde beklendiği gibi çalıştığını
+  doğrular.
 
 ## Bilinçli tasarım kararları
 
 - **Autofill'in native açılır penceresi bulanıklaştırılmıyor.** Chrome'un
   kayıtlı kart/adres önerisi kutusu sayfa DOM'unun dışında, tarayıcının kendi
   arayüz katmanında render edilir — hiçbir content script CSS/JS ile ona
-  erişemez. Daha önce `autocomplete="off"` zorlayarak bu kutunun çıkmasını
-  engelleyen bir katman vardı, kullanıcı isteğiyle **kaldırıldı** — sebep:
-  bazı sitelerde form davranışını bozma riski ve kullanıcının bunu istememesi.
-  Sadece input alanının kendisi (kutunun içindeki yazı) blur'lanıyor.
+  erişemez. Sadece input alanının kendisi (kutunun içindeki yazı) blur'lanıyor.
 - Regex doğrulamaları (Luhn, TCKN checksum) bilinçli olarak sıkı — yanlış
   pozitifi azaltmak için. Adres kalıbı ise bilinçli olarak **geniş** — az
-  kaçırmak, fazla yakalamaktan daha güvenli kabul edildi.
+  kaçırmak, fazla yakalamaktan daha güvenli kabul edildi. Anahtar kelimeden
+  (Mahalle/Sokak/Cadde/Bulvar, kısaltmalı/kısaltmasız, noktayla bitişik
+  "519.Sok" gibi biçimler dahil) sonraki en fazla 8 kelimelik serbest metin
+  de (apartman adı, No/Daire/Kat/Blok/Zil bilgisi) eşleşmeye dahil edilir.
+- Form alanlarında **yazarken de** koruma var (`watchLiveFields`) — eskiden
+  bilinen hassas alanlar sadece odaklanılmadığında bulanıktı, odaklanınca
+  (yani tam da yazarken) açılıyordu; bu, ekran paylaşımı sırasında yazarken
+  bilgiyi ifşa ediyordu. Artık odaklanma durumundan bağımsız, içerik temelli.
+- **Geliştirici sırları** (AWS/GCP/Azure/GitHub/Slack/OpenAI/Anthropic/JWT)
+  checksum yerine sabit önek/format ayırt ediciliğine güvenir (`AKIA`,
+  `AIza`, `gh[pousr]_`, `sk-`, `xox[baprs]-`, `eyJ...`) — bu, gitleaks/
+  trufflehog gibi araçların da kullandığı standart yaklaşım.
+- **İsim tespiti — iki fazlı, kabul edilmiş sınırlamalarla (Faz A).** Regex
+  ile genel isim tespiti güvenilir yapılamaz (ciddi hiçbir PII-tespit aracı
+  bunu salt regex'le çözmüyor, hepsi NER modeli kullanıyor). Bilinçli olarak
+  düşük maliyetli bir ilk adım seçildi:
+  - *Bağlam-çıpası* (`isim-baglam`, yüksek isabet): "Ad Soyad:", "Alıcı:",
+    "Müşteri:" gibi Türkçe etiketlerin **hemen ardından** gelen 2-3 kelimelik
+    büyük-harfle-başlayan diziyi isim sayar. Sadece isim kısmı bulansın diye
+    etiketin kendisi bir **lookbehind** içinde tutulur (`m[0]` sadece ismi
+    içerir, etiketi değil).
+  - *Yaygın isim listesi* (`isim-liste`, daha geniş/riskli): `lib/turkish-
+    names.js`'teki ~200 yaygın Türkçe ilk isimden hemen sonra gelen 1-2 büyük
+    harfli kelimeyi muhtemel soyadı sayar. **Bilinen yan etki:** "Hasan Bey"
+    gibi isim-olmayan bir ikinci kelime de yanlışlıkla eşleşebilir — kabul
+    edilebilir kabul edildi (adres kalıbıyla aynı "az kaçırmak > fazla
+    yakalamak" felsefesi).
+  - Regex boundary (`\b`) yerine özel `(?<![A-Za-zÇĞİÖŞÜçğıöşü0-9])` /
+    `(?![A-Za-zÇĞİÖŞÜçğıöşü0-9])` lookaround'ları kullanılıyor — JS'te `\b`,
+    `\w`'yi ASCII `[A-Za-z0-9_]` ile tanımladığından "İbrahim", "Çınar" gibi
+    Türkçe harfle başlayan isimlerin önünde **yanlışlıkla eşleşmeyebilir**
+    (non-word→non-word geçişi \b'yi tetiklemez). Bu proje için özel olarak
+    doğru çözülmüş bir detay; adres/diğer kalıplarda henüz retrofit edilmedi.
+  - **Faz B (yapılmadı, gelecek iş):** `transformers.js` ile küçük bir ONNX
+    NER modelini tarayıcıda çalıştırmak. Maliyet: eklenti boyutu 10-65 MB
+    büyür, her yazışta modeli çalıştırmak ağır (debounce şart), MV3'te WASM
+    için offscreen document gibi ek altyapı gerekir — ayrı, kapsamı net bir
+    iş olarak ele alınmalı.
+- **Manuel blur, CSS seçici yoluyla "best effort" kalıcılık kullanır**
+  (`getElementPath`). Elementin id'si varsa onu, yoksa tag+`:nth-of-type`
+  zincirini `document.body`'ye kadar üretir. Bu, statik/az-değişen sayfalarda
+  iyi çalışır ama çok dinamik SPA'larda (React'in her render'da farklı DOM
+  yapısı üretmesi gibi) yapı değişirse eşleşme bozulabilir — bilinen bir
+  sınırlama, tam bir fingerprint/XPath çözümü değil.
+- **Paylaşım algılama sadece paylaşımı BAŞLATAN sekmede çalışır**
+  (`getDisplayMedia` hook'u `lib/share-hook.js`, MAIN dünyasında). OBS, Zoom
+  masaüstü uygulaması gibi harici araçlarla yapılan paylaşımları göremez —
+  mevcut mimari sınırlama (bkz. Bilinen Sınırlamalar, README.md) devam
+  ediyor, bu özellik onu ortadan kaldırmıyor, sadece web-tabanlı paylaşım
+  başlatma anını (Meet/Discord-web gibi) yakalıyor.
 - OCR / video-frame analizi kullanılmıyor. Sebep: bu bir sekme/sayfa
   eklentisi, sadece DOM içeriğine erişebiliyor; OBS/masaüstü paylaşımı zaten
-  kapsam dışı (bkz. Bilinen Sınırlamalar, README.md).
+  kapsam dışı.
+
+## Bilerek almadığımız özellikler (rakiplerde var, burada yok)
+
+- **Scramble modu** (gerçekçi sahte veriyle değiştirme) — blur zaten yeterli,
+  ek karmaşıklık gerektirmiyor.
+- **Fiyat/para birimi maskeleme** — bu projenin kullanım senaryosuyla alakasız.
+- **ML/AI tabanlı görsel tespit** — mevcut regex+DOM yaklaşımı yeterince
+  güvenilir ve şeffaf; ML modeli hem performans hem "neden bunu yakaladı/
+  yakalamadı" açısından belirsizlik katar (bkz. isim tespiti Faz B notu).
 
 ## Bilinen eksikler / olası sıradaki adımlar
 
-- [x] Eklenti ikonları — `icons/icon{16,48,128}.png`, `manifest.json`'da
-      `icons` ve `action.default_icon` altında tanımlı.
-- [x] Site bazlı whitelist — `chrome.storage.sync.whitelistedDomains`,
-      popup'ta "Bu sitede kapat" toggle'ı, `lib/patterns.js`'te
-      `isDomainWhitelisted`.
-- [x] Kullanıcı tanımlı özel kalıplar — `chrome.storage.sync.customPatterns`,
-      popup'ta ekleme/silme listesi, `lib/patterns.js`'te
-      `buildCustomPatterns`.
-- [x] Otomatik test — `lib/patterns.js` + `tests/patterns.test.js` (Jest,
-      `npm test`). Kart/TCKN/IBAN/telefon/e-posta/adres kalıpları, whitelist
-      ve özel kalıp mantığı test ediliyor.
-- [ ] Adres regex'i gerçek Türkçe adres varyasyonlarıyla (kısaltmalar, il/ilçe
-      sırası vb.) daha kapsamlı test edilmeli — şu an sadece temel bir örnek
-      test var.
+- [x] Eklenti ikonları, site bazlı whitelist, özel kalıplar, Jest testleri,
+      yazarken canlı blur, genişletilmiş adres kalıbı — hepsi tamam (yukarıya
+      bakınız).
+- [x] **Manuel blur** — element picker + `chrome.storage.sync.manualBlurs`
+      ile sayfa bazlı kalıcılık.
+- [x] **Geliştirici sırları** — AWS/GCP/Azure/GitHub/Slack/OpenAI/Anthropic/
+      JWT kalıpları `lib/patterns.js`'te.
+- [x] **İsim tespiti Faz A** — bağlam-çıpası + yaygın isim listesi.
+- [x] **Paylaşım başlangıcını algılama** — `lib/share-hook.js` (MAIN world)
+      + `content.js`'te durum banner'ı.
+- [ ] İsim tespiti Faz B (NER modeli) — kapsamlı, ayrı bir iş; şu an
+      planlanmıyor (bkz. yukarıdaki maliyet notu).
+- [ ] Yaygın isim listesi küçük (~200) — genişletilebilir ama listeye
+      eklenen her isim yanlış-pozitif riskini de büyütür, dengeli tutulmalı.
+- [ ] Manuel blur seçici üretimi (`getElementPath`) çok dinamik SPA'larda
+      kırılgan olabilir — daha sağlam bir fingerbrint yöntemi (örn. yakın
+      metin içeriğine göre eşleştirme) değerlendirilebilir.
+- [ ] Adres kalıbı hâlâ tam kapsamlı değil: anahtar kelime (Mahalle/Sokak/
+      Cadde) olmadan yazılmış çıplak yer adları yakalanamıyor — kullanıcı
+      özel kalıp ekleyebilir.
 - [ ] Chrome Web Store'a yayınlamak için: gizlilik politikası metni, store
       açıklaması, ekran görüntüleri hâlâ gerekiyor (ikonlar artık hazır).
 
 ## Test etme
 
-1. `chrome://extensions` → Geliştirici modu aç → "Paketlenmemiş öğe yükle" →
-   bu klasörü seç.
-2. Kod değiştirdikten sonra `chrome://extensions` sayfasında eklentinin
-   yenile (⟳) butonuna bas, sonra test ettiğin sekmeyi yenile (content
-   script sadece sayfa yeniden yüklendiğinde güncellenir).
+1. `chrome://extensions` (veya Brave'de `brave://extensions`) → Geliştirici
+   modu aç → "Paketlenmemiş öğe yükle" → bu klasörü seç.
+2. Kod değiştirdikten sonra eklentinin yenile (⟳) butonuna bas, sonra test
+   ettiğin sekmeyi yenile (content script sadece sayfa yeniden
+   yüklendiğinde güncellenir).
 3. Hızlı test metni: `4532 0151 1283 0366` (kart), `05XX XXX XX XX` (tel),
    `Cumhuriyet Mahallesi Atatürk Caddesi No:15 Daire:4` (adres),
-   `test@example.com` (e-posta).
+   `test@example.com` (e-posta), `Ad Soyad: Ahmet Yılmaz` (isim, bağlam),
+   `AKIAABCDEFGHIJKLMNOP` (AWS anahtarı, örnek/sahte).
+4. **Manuel blur**: popup'tan "Bir öğe seç ve gizle" → sayfada bir öğeye
+   tıkla → bulanıklaşmalı ve sayfa yenilenince kalıcı kalmalı. Kaldırmak için
+   `Ctrl+tık`.
+5. **Paylaşım algılama**: `getDisplayMedia` destekleyen bir sayfada (örn.
+   `https://meet.google.com` gibi bir web toplantı sitesinde ya da basit bir
+   test sayfasında `navigator.mediaDevices.getDisplayMedia()` çağrısı
+   tetikleyip) paylaşım başlatınca sağ üstte durum banner'ı görünmeli.
 
 ### Birim testleri (regex/doğrulama mantığı)
 
@@ -106,4 +220,5 @@ npm install
 npm test
 ```
 
-`lib/patterns.js`'teki saf fonksiyonları test eder; tarayıcı/DOM gerekmez.
+`lib/patterns.js`'teki saf fonksiyonları test eder (42 test); tarayıcı/DOM
+gerekmez.
