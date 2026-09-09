@@ -114,8 +114,14 @@ JavaScript dosyaları paket içinde gelir.
 
 ## Ekran Görüntüleri (1280×800 veya 640×400, en az 1 tane gerekli)
 
-Henüz alınmadı. Önerilen kareler:
-1. Popup açık görünümü (tüm switch'ler ve butonlarla)
-2. Bir form/checkout sayfasında kart no + adres + isim bulanıklaşmış hâli
-3. Panik modu aktifken tüm ekranın karardığı an
-4. Manuel blur seçim modu (kırmızı kesikli outline ile)
+`docs/screenshots/` altında hazır (Playwright ile gerçek Brave + yüklü
+eklenti kullanılarak, sahte/örnek verilerle otomatik üretildi):
+
+1. `screenshot-1-checkout-blurred.png` — örnek bir ödeme sayfasında kart no,
+   adres, isim, TC kimlik, IBAN bulanıklaşmış hâli
+2. `screenshot-2-popup.png` — popup açık görünümü (yeni logo, tüm switch'ler)
+3. `screenshot-3-panic-mode.png` — panik modu aktifken tüm ekranın karardığı an
+4. `screenshot-4-manual-blur-picker.png` — manuel blur seçim modu (kırmızı
+   kesikli outline + üstte rozet)
+
+Chrome Web Store'a yüklerken bu 4 dosya doğrudan kullanılabilir.

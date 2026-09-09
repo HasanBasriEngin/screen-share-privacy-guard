@@ -267,8 +267,14 @@ var.
 - [x] **Mağaza açıklaması + izin gerekçeleri** — `docs/store-listing.md`'de
       kopyala-yapıştır hazır (kısa/detaylı açıklama, kategori, `host_permissions`/
       `scripting`/`storage`/`activeTab` gerekçeleri, single-purpose metni).
-- [ ] **Ekran görüntüleri** (1280×800 veya 640×400, en az 1 tane) hâlâ
-      gerekiyor — `docs/store-listing.md`'de önerilen kareler listeli.
+- [x] **Ekran görüntüleri** — `docs/screenshots/` altında 4 tane (checkout
+      sayfasında bulanıklaştırma, popup, panik modu, manuel blur seçim
+      modu). Playwright ile gerçek Brave + yüklü eklenti kullanılarak,
+      örnek/sahte verilerle otomatik üretildi (`chromium.launchPersistentContext`
+      + `--load-extension`, popup'a doğrudan `chrome-extension://<id>/popup.html`
+      olarak gidildi). Üretim scripti depoda tutulmuyor (tek seferlik araç,
+      `generate_icons.py` ile aynı mantık) — tekrar gerekirse benzer bir
+      Playwright script'i yazılabilir.
 - [ ] Chrome Web Store Developer hesabı kaydı ($5, tek seferlik) ve
       gönderim henüz yapılmadı.
 
