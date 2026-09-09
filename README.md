@@ -41,9 +41,12 @@ streaming or sharing your tab.
   or home address) that doesn't match the built-in patterns, and it will be
   automatically blurred on every site.
 - **Manual blur**: for anything the automatic patterns miss (an image, an
-  unusual layout), click "Pick an element to hide" in the popup, then click
-  the element on the page — it gets blurred and stays blurred on that page
-  across reloads. Remove it again with `Ctrl`+click.
+  unusual layout), click "Pick element(s) to hide" in the popup, then click
+  as many elements on the page as you want (press `Esc` when done) — each
+  one gets blurred and stays blurred on that page across reloads. You can
+  also skip the popup entirely: `Alt`+click any element to toggle its blur
+  on or off, one after another. (`Ctrl`+click is intentionally not used for
+  this — it would break "open link in new tab".)
 - **Share-start detection**: when a web app you're on (e.g. a video-call site)
   starts sharing your screen/tab via `getDisplayMedia`, a small banner
   confirms protection is active — or warns you loudly if it's off on that

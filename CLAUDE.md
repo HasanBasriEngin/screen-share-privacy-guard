@@ -56,15 +56,21 @@ var.
       `findMatches` ile hassas bir kalıba uyarsa bulanıklaşır.
     - Çift tıklayınca 2,5 saniyeliğine açılır (`revealTemporarily`).
   - **Manuel blur** (`startManualPicker` / `applyManualBlur` / ...): kullanıcı
-    popup'tan "Bir öğe seç ve gizle"ye basınca `START_MANUAL_PICKER` mesajı
+    popup'tan "Öğe(ler) seç ve gizle"ye basınca `START_MANUAL_PICKER` mesajı
     gelir; `mouseover`/`click`/`keydown` (Esc) dinleyicileriyle bir "element
     picker" modu açılır (devtools'un öğe seçicisine benzer, kırmızı kesikli
-    outline + üstte rozet). Seçilen öğeye `getElementPath()` ile bir CSS yolu
-    üretilir, `chrome.storage.sync.manualBlurs[hostname+pathname]` altında
-    kalıcı saklanır ve `init()` içinde `loadManualBlurs()` ile her sayfa
-    yüklemesinde yeniden uygulanır. Normal modda `Ctrl/Cmd+tık` ile kaldırılır.
-    Popup, sayfaya tıklanır tıklanmaz kapanacağı için picker modu **popup
-    kapansa da** `content.js` içinde bağımsız çalışmaya devam eder.
+    outline + üstte rozet). Mod **Esc'e basılana kadar açık kalır** — art
+    arda birden fazla öğe seçilebilir, her tıklamada mod kapanmaz. Seçilen
+    her öğeye `getElementPath()` ile bir CSS yolu üretilir,
+    `chrome.storage.sync.manualBlurs[hostname+pathname]` altında kalıcı
+    saklanır ve `init()` içinde `loadManualBlurs()` ile her sayfa
+    yüklemesinde yeniden uygulanır. Popup, sayfaya tıklanır tıklanmaz
+    kapanacağı için picker modu **popup kapansa da** `content.js` içinde
+    bağımsız çalışmaya devam eder.
+    Ayrıca popup'ı hiç açmadan **`Alt`+tık** ile herhangi bir öğe anında
+    aç/kapa (toggle) edilebilir — art arda birden fazla öğeye uygulanabilir.
+    `Ctrl/Cmd+tık` **kasıtlı olarak kullanılmadı**: tarayıcının "linki yeni
+    sekmede aç" davranışıyla çakışır, bu yüzden `Alt+tık` seçildi.
   - **Paylaşım algılama banner'ı** — `lib/share-hook.js`'ten gelen
     `ekran-guard:share-start` / `-end` `window` event'lerini dinler, ekranın
     sağ üstünde durum banner'ı gösterir (aktifse yeşil/geçici, kapalıysa veya
@@ -205,9 +211,10 @@ var.
    `Cumhuriyet Mahallesi Atatürk Caddesi No:15 Daire:4` (adres),
    `test@example.com` (e-posta), `Ad Soyad: Ahmet Yılmaz` (isim, bağlam),
    `AKIAABCDEFGHIJKLMNOP` (AWS anahtarı, örnek/sahte).
-4. **Manuel blur**: popup'tan "Bir öğe seç ve gizle" → sayfada bir öğeye
-   tıkla → bulanıklaşmalı ve sayfa yenilenince kalıcı kalmalı. Kaldırmak için
-   `Ctrl+tık`.
+4. **Manuel blur**: popup'tan "Öğe(ler) seç ve gizle" → sayfada istediğin
+   kadar öğeye art arda tıkla (Esc ile bitir) → hepsi bulanıklaşmalı ve sayfa
+   yenilenince kalıcı kalmalı. Popup'ı hiç açmadan `Alt+tık` ile de anında
+   aç/kapa (toggle) yapılabilir.
 5. **Paylaşım algılama**: `getDisplayMedia` destekleyen bir sayfada (örn.
    `https://meet.google.com` gibi bir web toplantı sitesinde ya da basit bir
    test sayfasında `navigator.mediaDevices.getDisplayMedia()` çağrısı

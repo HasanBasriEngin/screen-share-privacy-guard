@@ -366,7 +366,7 @@
     if (document.getElementById('ekran-guard-picker-badge')) return;
     const badge = document.createElement('div');
     badge.id = 'ekran-guard-picker-badge';
-    badge.textContent = '🖱️ Blur modu: bir öğeye tıkla (vazgeçmek için Esc)';
+    badge.textContent = '🖱️ Blur modu: istediğin kadar öğeye tıkla, bitirince Esc';
     document.documentElement.appendChild(badge);
   }
 
@@ -387,7 +387,10 @@
     const el = e.target;
     applyManualBlur(el);
     saveManualBlur(el);
-    stopManualPicker();
+    // Seçim modu açık kalır — birden fazla öğe art arda seçilebilir,
+    // bitirmek için Esc'e basmak gerekir.
+    el.classList.remove('ekran-guard-picker-hover');
+    if (pickerHoverEl === el) pickerHoverEl = null;
   }
 
   function onPickerKeydown(e) {
@@ -415,13 +418,20 @@
     document.removeEventListener('keydown', onPickerKeydown, true);
   }
 
-  // Normal modda (seçim modu değilken) Ctrl/Cmd+tıklama ile manuel blur'u kaldır.
+  // Normal modda (seçim modu değilken) Alt+tıklama ile hızlı manuel blur
+  // aç/kapa (toggle). Ctrl/Cmd+tık kasıtlı olarak KULLANILMIYOR — tarayıcının
+  // "linki yeni sekmede aç" davranışıyla çakışır. Alt+tık ile art arda birden
+  // fazla öğe seçilebilir, popup'ı hiç açmaya gerek kalmaz.
   document.addEventListener('click', (e) => {
-    if (pickerActive || !(e.ctrlKey || e.metaKey)) return;
-    const el = e.target.closest('.ekran-guard-manual-blur');
-    if (el) {
-      e.preventDefault();
-      removeManualBlur(el);
+    if (pickerActive || !e.altKey) return;
+    const blurredAncestor = e.target.closest('.ekran-guard-manual-blur');
+    e.preventDefault();
+    e.stopPropagation();
+    if (blurredAncestor) {
+      removeManualBlur(blurredAncestor);
+    } else {
+      applyManualBlur(e.target);
+      saveManualBlur(e.target);
     }
   }, true);
 
