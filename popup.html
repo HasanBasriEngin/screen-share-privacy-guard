@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="eg-header">
+    <span class="eg-logo">🛡️</span>
+    <div>
+      <h1>Ekran Guard</h1>
+      <p>Yayın gizlilik koruması</p>
+    </div>
+  </div>
+
+  <div class="eg-row">
+    <label class="eg-switch">
+      <input type="checkbox" id="toggle" checked />
+      <span class="eg-slider"></span>
+    </label>
+    <div>
+      <strong>Koruma Aktif</strong>
+      <p>Kart no, TC kimlik, telefon ve IBAN otomatik bulanıklaştırılır</p>
+    </div>
+  </div>
+
+  <button id="panicBtn" class="eg-panic">🔒 Şimdi Her Şeyi Gizle</button>
+  <p class="eg-hint">Kısayol: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd></p>
+
+  <div class="eg-row">
+    <label class="eg-switch">
+      <input type="checkbox" id="whitelistToggle" />
+      <span class="eg-slider"></span>
+    </label>
+    <div>
+      <strong>Bu sitede kapat</strong>
+      <p id="currentDomain">—</p>
+    </div>
+  </div>
+
+  <div class="eg-section">
+    <strong>Özel kalıplar</strong>
+    <p class="eg-section-hint">Her zaman gizlenmesini istediğin bir metin ekle (örn. kendi adresin).</p>
+    <div class="eg-custom-add">
+      <input type="text" id="customInput" placeholder="Örn. Cumhuriyet Mah. No:15" />
+      <button id="customAddBtn">Ekle</button>
+    </div>
+    <ul id="customList" class="eg-custom-list"></ul>
+  </div>
+
+  <div class="eg-footer">
+    Gizlenen bir alana tıklayarak 2,5 saniyeliğine görebilirsin.
+  </div>
+
+  <script src="lib/patterns.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

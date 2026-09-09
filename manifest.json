@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Ekran Guard - Yayın Gizlilik Koruması",
+  "version": "1.0.0",
+  "description": "Ekran paylaşımı sırasında adres, telefon, kredi kartı ve TC kimlik no gibi hassas bilgileri otomatik olarak bulanıklaştırır.",
+  "default_locale": "tr",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["lib/patterns.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ekran Guard",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "commands": {
+    "panic-blur": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Tüm ekranı anında bulanıklaştır (panik modu)"
+    }
+  }
+}

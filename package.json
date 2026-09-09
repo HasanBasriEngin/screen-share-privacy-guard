@@ -1,0 +1,12 @@
+{
+  "name": "ekran-guard",
+  "version": "1.0.0",
+  "description": "Chrome eklentisi: ekran paylaşımı sırasında hassas bilgileri bulanıklaştırır.",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

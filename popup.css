@@ -1,0 +1,196 @@
+* { box-sizing: border-box; }
+
+body {
+  width: 300px;
+  margin: 0;
+  padding: 16px;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #111318;
+  color: #f1f1f4;
+}
+
+.eg-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.eg-logo { font-size: 26px; }
+
+.eg-header h1 { font-size: 15px; margin: 0; }
+.eg-header p { font-size: 11px; margin: 2px 0 0; color: #9a9aa5; }
+
+.eg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #1b1e26;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.eg-row strong { font-size: 13px; }
+.eg-row p { font-size: 11px; color: #9a9aa5; margin: 3px 0 0; line-height: 1.4; }
+
+.eg-switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.eg-switch input { opacity: 0; width: 0; height: 0; }
+.eg-slider {
+  position: absolute; inset: 0;
+  background: #3a3d47;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.eg-slider::before {
+  content: "";
+  position: absolute;
+  height: 16px; width: 16px;
+  left: 3px; top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.eg-switch input:checked + .eg-slider { background: #ff3c3c; }
+.eg-switch input:checked + .eg-slider::before { transform: translateX(16px); }
+
+.eg-panic {
+  width: 100%;
+  padding: 11px;
+  background: #ff3c3c;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.eg-panic:hover { background: #e63333; }
+.eg-panic.active { background: #2c2f38; }
+
+.eg-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #6f6f7a;
+  margin: 8px 0 0;
+}
+.eg-hint kbd {
+  background: #2a2d36;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+}
+
+.eg-footer {
+  margin-top: 14px;
+  font-size: 10.5px;
+  color: #6f6f7a;
+  border-top: 1px solid #23262e;
+  padding-top: 10px;
+  line-height: 1.5;
+}
+
+#currentDomain {
+  font-size: 11px;
+  color: #9a9aa5;
+  margin: 3px 0 0;
+  word-break: break-all;
+}
+
+.eg-section {
+  background: #1b1e26;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.eg-section-hint {
+  font-size: 11px;
+  color: #9a9aa5;
+  margin: 3px 0 10px;
+  line-height: 1.4;
+}
+
+.eg-custom-add {
+  display: flex;
+  gap: 6px;
+}
+
+.eg-custom-add input {
+  flex: 1;
+  min-width: 0;
+  background: #111318;
+  border: 1px solid #2a2d36;
+  border-radius: 8px;
+  padding: 7px 9px;
+  color: #f1f1f4;
+  font-size: 12px;
+}
+
+.eg-custom-add input:focus {
+  outline: none;
+  border-color: #ff3c3c;
+}
+
+.eg-custom-add button {
+  background: #ff3c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.eg-custom-add button:hover {
+  background: #e63333;
+}
+
+.eg-custom-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.eg-custom-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #111318;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  font-size: 11.5px;
+}
+
+.eg-custom-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eg-custom-remove {
+  background: none;
+  border: none;
+  color: #9a9aa5;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.eg-custom-remove:hover {
+  color: #ff3c3c;
+}
