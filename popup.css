@@ -21,9 +21,7 @@ body {
 .eg-logo {
   display: block;
   flex-shrink: 0;
-  background: #f1f1f4;
   border-radius: 8px;
-  padding: 4px;
 }
 
 .eg-header h1 { font-size: 15px; margin: 0; }
