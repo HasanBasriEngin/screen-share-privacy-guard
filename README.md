@@ -48,9 +48,10 @@ streaming or sharing your tab.
   unusual layout), click "Pick element(s) to hide" in the popup, then click
   as many elements on the page as you want (press `Esc` when done) — each
   one gets blurred and stays blurred on that page across reloads. You can
-  also skip the popup entirely: `Alt`+click any element to toggle its blur
-  on or off, one after another. (`Ctrl`+click is intentionally not used for
-  this — it would break "open link in new tab".)
+  also skip the popup entirely: `Alt`+left-click any element to toggle its
+  blur on or off, one after another, or `Alt`+right-click anywhere to clear
+  every manual blur on the page at once. (`Ctrl`+click is intentionally not
+  used for this — it would break "open link in new tab".)
 - **Share-start detection**: when a web app you're on (e.g. a video-call site)
   starts sharing your screen/tab via `getDisplayMedia`, a small banner
   confirms protection is active — or warns you loudly if it's off on that

@@ -505,6 +505,15 @@
     }
   }, true);
 
+  // Alt+sağ tık: tek tek kaldırmak yerine bu sayfadaki TÜM manuel blur'ları
+  // tek seferde temizler (popup'taki "Bu sayfadaki manuel blur'ları temizle"
+  // butonuyla aynı işi yapar, sayfadan hiç çıkmadan).
+  document.addEventListener('contextmenu', (e) => {
+    if (!e.altKey) return;
+    e.preventDefault();
+    clearManualBlursForPage();
+  }, true);
+
   // Not: scheduleScan HER ZAMAN document.body'nin tamamını tarar (belirli bir
   // "root" alt ağacı değil). Eskiden MutationObserver'daki her addedNode için
   // ayrı bir root ile scheduleScan çağrılıyordu; ama bir tarama zaten

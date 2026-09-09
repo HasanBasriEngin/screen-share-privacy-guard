@@ -67,10 +67,13 @@ var.
     yüklemesinde yeniden uygulanır. Popup, sayfaya tıklanır tıklanmaz
     kapanacağı için picker modu **popup kapansa da** `content.js` içinde
     bağımsız çalışmaya devam eder.
-    Ayrıca popup'ı hiç açmadan **`Alt`+tık** ile herhangi bir öğe anında
+    Ayrıca popup'ı hiç açmadan **`Alt`+sol tık** ile herhangi bir öğe anında
     aç/kapa (toggle) edilebilir — art arda birden fazla öğeye uygulanabilir.
-    `Ctrl/Cmd+tık` **kasıtlı olarak kullanılmadı**: tarayıcının "linki yeni
-    sekmede aç" davranışıyla çakışır, bu yüzden `Alt+tık` seçildi.
+    **`Alt`+sağ tık** ise `contextmenu` event'ini yakalayıp (tarayıcı bağlam
+    menüsünü bastırarak) `clearManualBlursForPage()`'i tetikler — sayfadaki
+    TÜM manuel blur'ları tek seferde temizler. `Ctrl/Cmd+tık` **kasıtlı
+    olarak kullanılmadı**: tarayıcının "linki yeni sekmede aç" davranışıyla
+    çakışır, bu yüzden `Alt` modifier'ı seçildi.
   - **Paylaşım algılama banner'ı** — `lib/share-hook.js`'ten gelen
     `ekran-guard:share-start` / `-end` `window` event'lerini dinler, ekranın
     sağ üstünde durum banner'ı gösterir (aktifse yeşil/geçici, kapalıysa veya
