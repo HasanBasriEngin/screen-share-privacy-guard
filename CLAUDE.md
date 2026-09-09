@@ -78,8 +78,17 @@ var.
   - `MutationObserver` — sonradan yüklenen içerikleri (SPA, chat widget'ları)
     de tarar.
   - Site whitelist'te ise (`isDomainWhitelisted`) hiç taramaz; `chrome.storage.
-    onChanged` ile whitelist/özel kalıp/manuel blur/açma-kapama
+    onChanged` ile whitelist/özel kalıp/manuel blur/açma-kapama/kategori
     değişikliklerine sayfa yenilenmeden tepki verir.
+  - **Kategori anahtarları** (`nameBlurEnabled`, `idAddressCardBlurEnabled`):
+    ana "Koruma Aktif" anahtarının altında, `activePatterns()` içinde
+    `getPatterns()`'in döndürdüğü diziyi **etikete göre filtreler** — 'İsim'
+    etiketli kalıplar `nameBlurEnabled`'a, 'TC Kimlik'/'Adres'/'Kart No'
+    etiketli kalıplar `idAddressCardBlurEnabled`'a bağlı. Not: bu iki toggle
+    sadece İÇERİK bazlı (sayfa metni + `INPUT_SELECTOR` dışındaki genel form
+    alanları) tespiti etkiler; `INPUT_SELECTOR`'a uyan (kart/telefon/adres/
+    tckn autofill ipuçlu) alanların içi doluysa her zaman blur kalır —
+    kategoriden bağımsız, bilinçli bir güvenlik varsayılanı.
   - Panik modu: `chrome.commands` (`Ctrl+Shift+B`) → `background.js` →
     `chrome.tabs.sendMessage` → `content.js` tüm sayfayı karartır. Panik modu
     whitelist'ten **etkilenmez**.
@@ -92,9 +101,11 @@ var.
 - `content.css` — blur efektleri, panik modu overlay'i, manuel blur/picker
   stilleri, paylaşım banner'ı.
 - `background.js` — sadece komut (kısayol) yönlendirme ve ilk kurulum ayarı.
-- `popup.html/css/js` — açma/kapama toggle'ı, panik butonu, "bu sitede kapat"
-  whitelist toggle'ı, özel kalıp ekleme/silme listesi, manuel blur seç/temizle
-  butonları. `lib/patterns.js`'i `window.EkranGuardPatterns` olarak kullanır.
+- `popup.html/css/js` — açma/kapama toggle'ı, panik butonu, **kategori bazlı
+  toggle'lar** ("İsimleri Gizle", "Kimlik, Adres ve Kart Bilgilerini Gizle"),
+  "bu sitede kapat" whitelist toggle'ı, özel kalıp ekleme/silme listesi,
+  manuel blur seç/temizle butonları. `lib/patterns.js`'i
+  `window.EkranGuardPatterns` olarak kullanır.
 - `icons/` — `generate_icons.py` (Pillow) ile üretilen 16/48/128px PNG ikonlar;
   kaynak script depoda tutulmuyor, gerekirse yeniden üretilebilir (kırmızı
   kalkan + bulanık çizgiler motifi, marka renkleriyle: `#111318` zemin,

@@ -32,6 +32,10 @@ streaming or sharing your tab.
   darkens the whole page — for emergencies during a live stream.
 - Clicking a blurred piece of text reveals it for 2.5 seconds, then it blurs
   again automatically.
+- **Category toggles**: two switches in the popup let you turn off name
+  detection ("İsimleri Gizle") and ID/address/card detection ("Kimlik, Adres
+  ve Kart Bilgilerini Gizle") independently, without disabling the rest of
+  protection (phone, email, IBAN, developer secrets, custom patterns).
 - **Per-site whitelist**: use the "Disable on this site" toggle in the popup
   to turn protection off on a site you trust, like your own banking site.
   The whitelist also covers subdomains (adding `example.com` also whitelists

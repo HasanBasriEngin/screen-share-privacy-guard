@@ -18,22 +18,35 @@
   let whitelisted = false;
   let customPatterns = [];
   let panicMode = false;
+  // Kategori bazlı anahtarlar: ana "Koruma Aktif" anahtarının altında, hangi
+  // kalıp türlerinin aktif olduğunu ayrıca kontrol eder.
+  let nameBlurEnabled = true;
+  let idAddressCardBlurEnabled = true;
+  const ID_ADDRESS_CARD_LABELS = new Set(['TC Kimlik', 'Adres', 'Kart No']);
   const REVEAL_MS = 2500; // Tıklayınca/çift tıklayınca kaç ms açık kalsın
 
   function activePatterns() {
-    return getPatterns().concat(buildCustomPatterns(customPatterns));
+    let patterns = getPatterns();
+    if (!nameBlurEnabled) patterns = patterns.filter((p) => p.label !== 'İsim');
+    if (!idAddressCardBlurEnabled) patterns = patterns.filter((p) => !ID_ADDRESS_CARD_LABELS.has(p.label));
+    return patterns.concat(buildCustomPatterns(customPatterns));
   }
 
   // ---------- Ayarları yükle ----------
-  chrome.storage.sync.get(['ekranGuardEnabled', 'whitelistedDomains', 'customPatterns'], (res) => {
-    enabled = res.ekranGuardEnabled !== false; // varsayılan: açık
-    whitelisted = isDomainWhitelisted(location.hostname, res.whitelistedDomains);
-    customPatterns = res.customPatterns || [];
-    if (enabled && !whitelisted) init();
-  });
+  chrome.storage.sync.get(
+    ['ekranGuardEnabled', 'whitelistedDomains', 'customPatterns', 'nameBlurEnabled', 'idAddressCardBlurEnabled'],
+    (res) => {
+      enabled = res.ekranGuardEnabled !== false; // varsayılan: açık
+      whitelisted = isDomainWhitelisted(location.hostname, res.whitelistedDomains);
+      customPatterns = res.customPatterns || [];
+      nameBlurEnabled = res.nameBlurEnabled !== false;
+      idAddressCardBlurEnabled = res.idAddressCardBlurEnabled !== false;
+      if (enabled && !whitelisted) init();
+    }
+  );
 
-  // Popup'tan ayar değiştiğinde (whitelist, özel kalıp, açma/kapama) sayfayı
-  // yenilemeden tepki ver.
+  // Popup'tan ayar değiştiğinde (whitelist, özel kalıp, kategori, açma/kapama)
+  // sayfayı yenilemeden tepki ver.
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
 
@@ -48,6 +61,22 @@
 
     if (changes.customPatterns) {
       customPatterns = changes.customPatterns.newValue || [];
+      if (enabled && !whitelisted) {
+        removeAllBlurs();
+        init();
+      }
+    }
+
+    if (changes.nameBlurEnabled) {
+      nameBlurEnabled = changes.nameBlurEnabled.newValue !== false;
+      if (enabled && !whitelisted) {
+        removeAllBlurs();
+        init();
+      }
+    }
+
+    if (changes.idAddressCardBlurEnabled) {
+      idAddressCardBlurEnabled = changes.idAddressCardBlurEnabled.newValue !== false;
       if (enabled && !whitelisted) {
         removeAllBlurs();
         init();

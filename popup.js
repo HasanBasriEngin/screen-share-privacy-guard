@@ -2,6 +2,8 @@ const { normalizeDomain, isDomainWhitelisted } = window.EkranGuardPatterns;
 
 const toggle = document.getElementById('toggle');
 const panicBtn = document.getElementById('panicBtn');
+const nameToggle = document.getElementById('nameToggle');
+const idAddressCardToggle = document.getElementById('idAddressCardToggle');
 const whitelistToggle = document.getElementById('whitelistToggle');
 const currentDomainEl = document.getElementById('currentDomain');
 const customInput = document.getElementById('customInput');
@@ -40,6 +42,22 @@ toggle.addEventListener('change', async () => {
   const enabled = toggle.checked;
   chrome.storage.sync.set({ ekranGuardEnabled: enabled });
   await notifyContentScript('TOGGLE', { enabled });
+});
+
+// ---------- Kategori anahtarları ----------
+// content.js bu iki ayarı chrome.storage.onChanged ile dinliyor, ayrıca bir
+// mesaj göndermeye gerek yok (whitelist/özel kalıp ile aynı desen).
+chrome.storage.sync.get(['nameBlurEnabled', 'idAddressCardBlurEnabled'], (res) => {
+  nameToggle.checked = res.nameBlurEnabled !== false;
+  idAddressCardToggle.checked = res.idAddressCardBlurEnabled !== false;
+});
+
+nameToggle.addEventListener('change', () => {
+  chrome.storage.sync.set({ nameBlurEnabled: nameToggle.checked });
+});
+
+idAddressCardToggle.addEventListener('change', () => {
+  chrome.storage.sync.set({ idAddressCardBlurEnabled: idAddressCardToggle.checked });
 });
 
 // ---------- Panik modu ----------
