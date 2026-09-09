@@ -160,6 +160,9 @@
     // Çakışan eşleşmeleri temizle
     matches = matches.filter((m, i) => i === 0 || m.start >= matches[i - 1].end);
 
+    const parent = node.parentNode;
+    const hasAddressMatch = matches.some((m) => m.label === 'Adres');
+
     const frag = document.createDocumentFragment();
     let cursor = 0;
     for (const m of matches) {
@@ -173,7 +176,34 @@
       cursor = m.end;
     }
     if (cursor < text.length) frag.appendChild(document.createTextNode(text.slice(cursor)));
-    node.parentNode.replaceChild(frag, node);
+    parent.replaceChild(frag, node);
+
+    // Adres eşleşmesi bir satırın sadece bir kısmını (anahtar kelimenin
+    // olduğu yeri) yakalayabilir; şehir/ilçe gibi anahtar kelimesiz devam
+    // satırları aynı metin node'unda olmadığından regex'e hiç girmez. Adresin
+    // TAMAMI görünmesin diye, eşleşmeyi içeren en yakın blok elemanının
+    // TAMAMINI da bulanıklaştırıyoruz (bkz. "Bilinçli tasarım kararları").
+    if (hasAddressMatch) {
+      blurContainingBlock(parent);
+    }
+  }
+
+  const BLOCK_TAGS = new Set([
+    'DIV', 'P', 'LI', 'TD', 'TH', 'TR', 'TABLE', 'UL', 'OL',
+    'ARTICLE', 'SECTION', 'FORM', 'HEADER', 'FOOTER', 'MAIN', 'ASIDE'
+  ]);
+
+  function blurContainingBlock(startEl) {
+    let el = startEl;
+    let depth = 0;
+    while (el && el !== document.body && depth < 4) {
+      if (BLOCK_TAGS.has(el.tagName)) {
+        el.classList.add('ekran-guard-block-blur');
+        return;
+      }
+      el = el.parentElement;
+      depth++;
+    }
   }
 
   function revealTemporarily(el) {
@@ -270,6 +300,9 @@
     });
     document.querySelectorAll('.ekran-guard-manual-blur').forEach((el) => {
       el.classList.remove('ekran-guard-manual-blur');
+    });
+    document.querySelectorAll('.ekran-guard-block-blur').forEach((el) => {
+      el.classList.remove('ekran-guard-block-blur');
     });
   }
 
@@ -435,35 +468,40 @@
     }
   }, true);
 
+  // Not: scheduleScan HER ZAMAN document.body'nin tamamını tarar (belirli bir
+  // "root" alt ağacı değil). Eskiden MutationObserver'daki her addedNode için
+  // ayrı bir root ile scheduleScan çağrılıyordu; ama bir tarama zaten
+  // bekliyorsa (`scanScheduled`) yeni gelen root'lar sessizce YOK
+  // SAYILIYORDU — aynı anda/yakın zamanda eklenen birden fazla blok (örn. bir
+  // sayfadaki "Teslimat Adresi" ve "Fatura Adresi" kartları) varsa sadece
+  // ilki taranıp diğeri hiç görülmüyordu. Tüm body'yi taramak bu kaybı
+  // ortadan kaldırır; debounce (idle callback) sayesinde maliyeti kabul
+  // edilebilir düzeyde tutulur.
   let scanScheduled = false;
-  function scheduleScan(root) {
+  function scheduleScan() {
     if (scanScheduled) return;
     scanScheduled = true;
     requestIdleCallback ? requestIdleCallback(run, { timeout: 500 }) : setTimeout(run, 200);
     function run() {
       scanScheduled = false;
       if (!enabled || whitelisted) return;
-      walk(root);
-      watchLiveFields(root);
+      walk(document.body);
+      watchLiveFields(document.body);
     }
   }
 
   let observer = null;
   function init() {
-    if (document.body) scheduleScan(document.body);
+    if (document.body) scheduleScan();
     if (!observer) {
       observer = new MutationObserver((mutations) => {
         if (!enabled || whitelisted) return;
-        for (const mut of mutations) {
-          mut.addedNodes.forEach((node) => {
-            if (node.nodeType === 1) scheduleScan(node);
-            else if (node.nodeType === 3) scheduleScan(node.parentNode || document.body);
-          });
-        }
+        const changed = mutations.some((mut) => mut.addedNodes.length > 0 || mut.type === 'characterData');
+        if (changed) scheduleScan();
       });
     }
     const start = () => {
-      scheduleScan(document.body);
+      scheduleScan();
       loadManualBlurs();
       observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     };

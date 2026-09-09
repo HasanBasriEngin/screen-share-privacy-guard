@@ -55,6 +55,13 @@
   transition: filter 0.15s ease;
 }
 
+/* Bir adres eşleşmesi bulunan metnin en yakın blok kapsayıcısı — anahtar
+   kelimesiz devam satırları (şehir/ilçe gibi) da böylece gizlenmiş olur. */
+.ekran-guard-block-blur {
+  filter: blur(6px);
+  transition: filter 0.15s ease;
+}
+
 .ekran-guard-picker-hover {
   outline: 2px dashed #ff3c3c !important;
   outline-offset: 2px;
