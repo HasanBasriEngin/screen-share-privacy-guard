@@ -93,6 +93,14 @@ body {
   font-size: 10px;
 }
 
+.eg-hint code {
+  background: #2a2d36;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: ui-monospace, "Courier New", monospace;
+}
+
 .eg-footer {
   margin-top: 4px;
   font-size: 10.5px;

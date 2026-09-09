@@ -50,6 +50,16 @@
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
 
+    // Not: TOGGLE mesajı sadece popup açıkken AKTİF olan sekmeye gönderiliyor
+    // (chrome.tabs.sendMessage tek bir tab.id hedefler). Diğer açık
+    // sekmeler/pencereler bu mesajı hiç almadığı için, koruma kapatıldığında
+    // onlarda blur'lu görünmeye devam ediyordu. storage.onChanged HER
+    // sekmede tetiklendiği için gerçek kaynak-of-truth burası olmalı.
+    if (changes.ekranGuardEnabled) {
+      enabled = changes.ekranGuardEnabled.newValue !== false;
+      if (enabled && !whitelisted) init(); else removeAllBlurs();
+    }
+
     if (changes.whitelistedDomains) {
       whitelisted = isDomainWhitelisted(location.hostname, changes.whitelistedDomains.newValue);
       if (whitelisted) {
@@ -167,7 +177,7 @@
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'ekran-guard-panic-overlay';
-        overlay.innerHTML = '<div class="ekran-guard-panic-msg">🔒 Gizlilik Modu Aktif<br><span>Tekrar açmak için Ctrl+Shift+B</span></div>';
+        overlay.innerHTML = '<div class="ekran-guard-panic-msg">🔒 Gizlilik Modu Aktif<br><span>Tekrar açmak için Ctrl+Shift+X (veya popup)</span></div>';
         document.documentElement.appendChild(overlay);
       }
     } else if (overlay) {

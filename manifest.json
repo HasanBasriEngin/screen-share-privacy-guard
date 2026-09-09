@@ -41,8 +41,8 @@
   "commands": {
     "panic-blur": {
       "suggested_key": {
-        "default": "Ctrl+Shift+B",
-        "mac": "Command+Shift+B"
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
       },
       "description": "Tüm ekranı anında bulanıklaştır (panik modu)"
     }
