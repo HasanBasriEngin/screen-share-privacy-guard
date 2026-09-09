@@ -122,7 +122,21 @@ var.
   API'yi etkilemez (ayrı JS heap). `chrome.*` API'lerine buradan erişilemez.
 - `content.css` — blur efektleri, panik modu overlay'i, manuel blur/picker
   stilleri, paylaşım banner'ı.
-- `background.js` — sadece komut (kısayol) yönlendirme ve ilk kurulum ayarı.
+- `background.js` — komut (kısayol) yönlendirme, ilk kurulum ayarı ve
+  **`injectIntoExistingTabs()`**: service worker her başladığında (kurulum/
+  güncelleme/yeniden etkinleştirme/tarayıcı açılışı) hâlâ açık olan tüm
+  sekmelere `chrome.scripting.executeScript`/`insertCSS` ile içerik
+  betiklerini elle enjekte eder. Sebep: `content_scripts` sadece SAYFA
+  YÜKLENİRKEN otomatik çalışır; bu olmadan zaten açık sekmeler eklenti
+  kurulduğunda/yeniden etkinleştirildiğinde korumasız kalır, kullanıcı elle
+  sayfa yenilemek zorunda kalırdı. `content.js`'teki
+  `self.__ekranGuardContentLoaded` ve `lib/share-hook.js`'teki
+  `navigator.mediaDevices.__ekranGuardPatched` bayrakları aynı sekmeye
+  tekrar enjekte edilmeyi güvenli (idempotent) hale getirir — listener'lar/
+  observer'lar çoğalmaz. **Kalan sınırlama:** eklentiyi tamamen kapatmak
+  (`brave://extensions`'tan devre dışı bırakmak) tarayıcı tarafından
+  çalışan koda temizlenme fırsatı vermez — bu, tarayıcının platform
+  kısıtlaması, kodla düzeltilemez; o durumda sekmeyi yenilemek gerekir.
 - `popup.html/css/js` — açma/kapama toggle'ı, panik butonu, **kategori bazlı
   toggle'lar** ("İsimleri Gizle", "Kimlik, Adres ve Kart Bilgilerini Gizle"),
   "bu sitede kapat" whitelist toggle'ı, özel kalıp ekleme/silme listesi,
@@ -230,6 +244,11 @@ var.
 - [x] **Çoklu sekme tutarlılığı** — `ekranGuardEnabled` artık
       `chrome.storage.onChanged` ile her sekmede ayrı ayrı dinleniyor;
       eskiden sadece popup açıkken aktif olan sekme haberdar oluyordu.
+- [x] **Zaten açık sekmelere otomatik enjeksiyon** —
+      `background.js`'teki `injectIntoExistingTabs()`, kurulum/güncelleme/
+      yeniden etkinleştirme/tarayıcı açılışında hâlâ açık olan sekmelere
+      içerik betiklerini elle enjekte eder; eskiden bu sekmelerde korumanın
+      çalışması için sayfayı elle yenilemek gerekiyordu.
 - [x] **Paylaşım başlangıcını algılama** — `lib/share-hook.js` (MAIN world)
       + `content.js`'te durum banner'ı.
 - [ ] İsim tespiti Faz B (NER modeli) — kapsamlı, ayrı bir iş; şu an

@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+  // background.js, eklenti kurulduğunda/güncellendiğinde/yeniden
+  // etkinleştirildiğinde zaten açık olan sekmelere bu dosyayı elle tekrar
+  // enjekte edebilir (bkz. injectIntoExistingTabs). Aynı sekmede iki kez
+  // çalışırsa event listener'lar ve MutationObserver'lar çoğalır — bu yüzden
+  // ikinci çalıştırmada hemen çık.
+  if (self.__ekranGuardContentLoaded) return;
+  self.__ekranGuardContentLoaded = true;
+
   const {
     getPatterns,
     findMatches,

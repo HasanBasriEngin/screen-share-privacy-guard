@@ -96,6 +96,12 @@ streaming or sharing your tab.
   CSS selector path; on a very dynamic page (e.g. a React app that rebuilds
   its DOM structure differently each visit) it may stop matching after a
   layout change and need re-picking.
+- Installing, updating, or re-enabling the extension now automatically
+  protects tabs that were already open — no reload needed. The one case a
+  reload still can't be avoided: fully **disabling** the extension leaves
+  whatever it had already blurred exactly as it was (the browser gives
+  disabled extensions no chance to clean up), so a reload is needed to
+  fully revert that tab.
 
 ## Ideas for extension
 
