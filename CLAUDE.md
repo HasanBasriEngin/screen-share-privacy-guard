@@ -261,8 +261,16 @@ var.
 - [ ] Adres kalıbı hâlâ tam kapsamlı değil: anahtar kelime (Mahalle/Sokak/
       Cadde) olmadan yazılmış çıplak yer adları yakalanamıyor — kullanıcı
       özel kalıp ekleyebilir.
-- [ ] Chrome Web Store'a yayınlamak için: gizlilik politikası metni, store
-      açıklaması, ekran görüntüleri hâlâ gerekiyor (ikonlar artık hazır).
+- [x] **Gizlilik politikası** — `docs/privacy-policy.html`, GitHub Pages ile
+      yayında: https://hasanbasri.me/screen-share-privacy-guard/privacy-policy.html
+      (İngilizce + Türkçe, tek sayfa).
+- [x] **Mağaza açıklaması + izin gerekçeleri** — `docs/store-listing.md`'de
+      kopyala-yapıştır hazır (kısa/detaylı açıklama, kategori, `host_permissions`/
+      `scripting`/`storage`/`activeTab` gerekçeleri, single-purpose metni).
+- [ ] **Ekran görüntüleri** (1280×800 veya 640×400, en az 1 tane) hâlâ
+      gerekiyor — `docs/store-listing.md`'de önerilen kareler listeli.
+- [ ] Chrome Web Store Developer hesabı kaydı ($5, tek seferlik) ve
+      gönderim henüz yapılmadı.
 
 ## Test etme
 
