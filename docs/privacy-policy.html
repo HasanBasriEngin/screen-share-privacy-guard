@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy Shield — Privacy Policy</title>
+<style>
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #ffffff;
+  }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  h2 { font-size: 19px; margin-top: 36px; border-bottom: 1px solid #e5e5e5; padding-bottom: 6px; }
+  .updated { color: #666; font-size: 13px; margin-bottom: 28px; }
+  .lang-note { background: #f4f6f8; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #444; margin-bottom: 28px; }
+  ul { padding-left: 22px; }
+  code { background: #f2f2f2; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  a { color: #1a56db; }
+  hr { margin: 48px 0; border: none; border-top: 2px solid #e5e5e5; }
+</style>
+</head>
+<body>
+
+<h1>Privacy Shield — Privacy Policy</h1>
+<p class="updated">Last updated: September 9, 2026</p>
+<p class="lang-note">This page is available in English and Turkish (Türkçe versiyon aşağıdadır — scroll down).</p>
+
+<h2>1. Overview</h2>
+<p>Privacy Shield (the "Extension") is a Chrome/Brave browser extension that blurs sensitive information — credit card numbers, national ID numbers, phone numbers, IBANs, addresses, names, and developer secrets (API keys/tokens) — that might accidentally appear on screen while streaming, screen-sharing, or presenting your browser tab.</p>
+
+<h2>2. What Data the Extension Accesses</h2>
+<p>The Extension scans the text content and form fields of the web pages you visit, entirely <strong>locally, inside your own browser</strong>. This scanning:</p>
+<ul>
+  <li>Is never sent to any server operated by us or anyone else.</li>
+  <li>Is never logged, recorded, stored externally, or analyzed by us.</li>
+  <li>Is used only to decide, on your own device, which parts of the page should be blurred.</li>
+</ul>
+<p>We — the developer of this Extension — have no ability to see, collect, or access the content of the pages you browse.</p>
+
+<h2>3. What We Store, and Where</h2>
+<p>The following settings are stored using the browser's built-in <code>chrome.storage.sync</code> API:</p>
+<ul>
+  <li>Whether protection is enabled or disabled</li>
+  <li>Category toggles (name blurring, ID/address/card blurring)</li>
+  <li>Your per-site whitelist (domains where you disabled protection)</li>
+  <li>Custom text patterns you added (e.g. your own name or address)</li>
+  <li>Positions of elements you manually chose to blur ("manual blur")</li>
+</ul>
+<p>This data lives only in your browser. If you are signed into Chrome/Brave sync, it may be synchronized across your own devices through <strong>Google's or Brave's own sync infrastructure</strong> — not ours. We never receive, see, or have access to this data. We do not operate any backend server; the Extension has no server component at all.</p>
+
+<h2>4. Sharing with Third Parties</h2>
+<p>The Extension does not share, sell, transfer, or use your data for advertising or any purpose other than providing the blurring functionality described above. It contains no analytics, tracking, or telemetry SDKs of any kind.</p>
+
+<h2>5. Permissions and Why They Are Needed</h2>
+<ul>
+  <li><code>storage</code> — to save the settings listed in Section 3.</li>
+  <li><code>activeTab</code> / <code>scripting</code> — to run panic mode and the manual-blur picker on the tab you're currently using.</li>
+  <li><code>host_permissions</code> (<code>&lt;all_urls&gt;</code>) — since sensitive information can appear on any website, the Extension needs to be able to scan any page you visit to protect it. This permission is used exclusively for local, on-device blurring — never for collecting or transmitting data.</li>
+</ul>
+
+<h2>6. Children's Privacy</h2>
+<p>The Extension is a general-purpose privacy tool and does not knowingly collect data from anyone, including children, because it does not collect data at all.</p>
+
+<h2>7. Changes to This Policy</h2>
+<p>If this policy changes, the updated version will be published at this same URL, with a revised "Last updated" date above.</p>
+
+<h2>8. Contact</h2>
+<p>Questions or concerns can be raised via GitHub Issues:<br />
+<a href="https://github.com/HasanBasriEngin/screen-share-privacy-guard/issues">https://github.com/HasanBasriEngin/screen-share-privacy-guard/issues</a></p>
+
+<hr />
+
+<h1>Privacy Shield — Gizlilik Politikası</h1>
+<p class="updated">Son güncelleme: 9 Eylül 2026</p>
+
+<h2>1. Genel Bakış</h2>
+<p>Privacy Shield ("Eklenti"), ekran/sekme paylaşımı, canlı yayın veya sunum sırasında kredi kartı numarası, TC kimlik no, telefon numarası, IBAN, adres, isim ve geliştirici sırları (API anahtarı/token) gibi hassas bilgilerin yanlışlıkla ekranda görünmesini engelleyen bir Chrome/Brave tarayıcı eklentisidir.</p>
+
+<h2>2. Eklenti Hangi Verilere Erişiyor</h2>
+<p>Eklenti, ziyaret ettiğiniz web sayfalarının metin içeriğini ve form alanlarını, tamamen <strong>tarayıcınızın içinde, yerel olarak</strong> tarar. Bu tarama:</p>
+<ul>
+  <li>Bize veya başka hiç kimseye ait hiçbir sunucuya gönderilmez.</li>
+  <li>Tarafımızca hiçbir şekilde kaydedilmez, loglanmaz veya analiz edilmez.</li>
+  <li>Sadece kendi cihazınızda, sayfanın hangi kısımlarının bulanıklaştırılacağına karar vermek için kullanılır.</li>
+</ul>
+<p>Biz — bu Eklentinin geliştiricisi — gezindiğiniz sayfaların içeriğini görme, toplama veya erişme imkanına sahip değiliz.</p>
+
+<h2>3. Neyi, Nerede Saklıyoruz</h2>
+<p>Aşağıdaki ayarlar tarayıcının kendi <code>chrome.storage.sync</code> API'si ile saklanır:</p>
+<ul>
+  <li>Korumanın açık/kapalı durumu</li>
+  <li>Kategori tercihleri (isim gizleme, kimlik/adres/kart gizleme)</li>
+  <li>Site bazlı whitelist listeniz (korumayı kapattığınız domainler)</li>
+  <li>Eklediğiniz özel metin kalıpları (örn. kendi adınız veya adresiniz)</li>
+  <li>Manuel olarak gizlenmesini seçtiğiniz öğelerin sayfa içi konumu ("manuel blur")</li>
+</ul>
+<p>Bu veriler sadece tarayıcınızda tutulur. Chrome/Brave hesabınıza giriş yaptıysanız, bu veriler <strong>Google'ın veya Brave'in kendi senkronizasyon altyapısı</strong> üzerinden kendi cihazlarınız arasında senkronize edilebilir — bizim değil. Bu veriyi hiçbir zaman almayız, göremeyiz, erişimimiz olmaz. Eklentinin herhangi bir sunucu bileşeni (backend) yoktur.</p>
+
+<h2>4. Üçüncü Taraflarla Paylaşım</h2>
+<p>Eklenti hiçbir veriyi üçüncü taraflarla paylaşmaz, satmaz, aktarmaz veya reklam ya da yukarıda açıklanan bulanıklaştırma işlevi dışında herhangi bir amaçla kullanmaz. Herhangi bir analitik, izleme veya telemetri SDK'sı içermez.</p>
+
+<h2>5. İzinler ve Neden Gereklidirler</h2>
+<ul>
+  <li><code>storage</code> — Bölüm 3'te listelenen ayarları saklamak için.</li>
+  <li><code>activeTab</code> / <code>scripting</code> — panik modu ve manuel blur seçim modunun o an kullandığınız sekmede çalışabilmesi için.</li>
+  <li><code>host_permissions</code> (<code>&lt;all_urls&gt;</code>) — hassas bilgi herhangi bir sitede görünebileceği için, Eklentinin sizi korumak amacıyla ziyaret ettiğiniz her sayfayı tarayabilmesi gerekir. Bu izin yalnızca yerel/cihaz-içi bulanıklaştırma için kullanılır — asla veri toplamak veya iletmek için değil.</li>
+</ul>
+
+<h2>6. Çocukların Gizliliği</h2>
+<p>Eklenti genel amaçlı bir gizlilik aracıdır ve hiçbir veri toplamadığı için çocuklar dahil hiç kimseden bilerek veri toplamaz.</p>
+
+<h2>7. Bu Politikadaki Değişiklikler</h2>
+<p>Bu politika güncellenirse, güncel sürüm yukarıdaki "Son güncelleme" tarihiyle birlikte bu aynı adreste yayınlanır.</p>
+
+<h2>8. İletişim</h2>
+<p>Soru ve görüşleriniz için GitHub Issues üzerinden ulaşabilirsiniz:<br />
+<a href="https://github.com/HasanBasriEngin/screen-share-privacy-guard/issues">https://github.com/HasanBasriEngin/screen-share-privacy-guard/issues</a></p>
+
+</body>
+</html>
