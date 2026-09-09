@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Ekran Guard - Yayın Gizlilik Koruması",
+  "name": "Privacy Shield",
   "version": "1.0.0",
-  "description": "Ekran paylaşımı sırasında adres, telefon, kredi kartı ve TC kimlik no gibi hassas bilgileri otomatik olarak bulanıklaştırır.",
+  "description": "Kart no, TC kimlik, telefon, adres ve daha fazlası gibi hassas bilgilerinizi otomatik olarak gizleyip bulanıklaştırabilirsiniz.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"],
   "icons": {
@@ -31,7 +31,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Ekran Guard",
+    "default_title": "Privacy Shield",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

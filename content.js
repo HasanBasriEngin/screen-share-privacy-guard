@@ -86,11 +86,11 @@
   // OBS gibi harici masaüstü paylaşımını göremez (bkz. CLAUDE.md sınırlamalar).
   window.addEventListener('ekran-guard:share-start', () => {
     if (whitelisted) {
-      showShareBanner('⚠️ Ekran paylaşımı başladı ama bu site whitelist\'te — Ekran Guard koruma yapmıyor.', { persistent: true });
+      showShareBanner('⚠️ Ekran paylaşımı başladı ama bu site whitelist\'te — koruma yapılmıyor.', { persistent: true });
       return;
     }
     if (!enabled) {
-      showShareBanner('⚠️ Ekran paylaşımı başladı ama Ekran Guard kapalı.', {
+      showShareBanner('⚠️ Ekran paylaşımı başladı ama koruma kapalı.', {
         persistent: true,
         actionLabel: 'Şimdi Aç',
         onAction: () => {
@@ -101,7 +101,7 @@
       });
       return;
     }
-    showShareBanner('🟢 Ekran paylaşımı algılandı — Ekran Guard aktif.');
+    showShareBanner('🟢 Ekran paylaşımı algılandı — koruma aktif.');
   });
   window.addEventListener('ekran-guard:share-end', () => hideShareBanner());
 
@@ -138,7 +138,7 @@
       if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'ekran-guard-panic-overlay';
-        overlay.innerHTML = '<div class="ekran-guard-panic-msg">🔒 Ekran Guard: Gizlilik Modu Aktif<br><span>Tekrar açmak için Ctrl+Shift+B</span></div>';
+        overlay.innerHTML = '<div class="ekran-guard-panic-msg">🔒 Gizlilik Modu Aktif<br><span>Tekrar açmak için Ctrl+Shift+B</span></div>';
         document.documentElement.appendChild(overlay);
       }
     } else if (overlay) {

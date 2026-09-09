@@ -1,9 +1,11 @@
 * { box-sizing: border-box; }
 
 body {
-  width: 300px;
+  width: 320px;
+  max-height: 560px;
+  overflow-y: auto;
   margin: 0;
-  padding: 16px;
+  padding: 14px;
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
   background: #111318;
   color: #f1f1f4;
@@ -13,22 +15,24 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
-.eg-logo { font-size: 26px; }
+.eg-logo { font-size: 24px; }
 
 .eg-header h1 { font-size: 15px; margin: 0; }
 .eg-header p { font-size: 11px; margin: 2px 0 0; color: #9a9aa5; }
+
+.eg-divider {
+  border-top: 1px solid #23262e;
+  margin: 12px 0;
+}
 
 .eg-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: #1b1e26;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 12px;
+  padding: 2px 0;
 }
 
 .eg-row strong { font-size: 13px; }
@@ -36,8 +40,8 @@ body {
 
 .eg-switch {
   position: relative;
-  width: 38px;
-  height: 22px;
+  width: 36px;
+  height: 21px;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -52,36 +56,37 @@ body {
 .eg-slider::before {
   content: "";
   position: absolute;
-  height: 16px; width: 16px;
+  height: 15px; width: 15px;
   left: 3px; top: 3px;
   background: white;
   border-radius: 50%;
   transition: 0.2s;
 }
 .eg-switch input:checked + .eg-slider { background: #ff3c3c; }
-.eg-switch input:checked + .eg-slider::before { transform: translateX(16px); }
+.eg-switch input:checked + .eg-slider::before { transform: translateX(15px); }
 
 .eg-panic {
   width: 100%;
-  padding: 11px;
+  padding: 10px;
   background: #ff3c3c;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 9px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  margin-top: 10px;
 }
 .eg-panic:hover { background: #e63333; }
 .eg-panic.active { background: #2c2f38; }
 
 .eg-hint {
   text-align: center;
-  font-size: 11px;
+  font-size: 10.5px;
   color: #6f6f7a;
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
-.eg-hint kbd {
+.eg-hint kbd, .eg-section-hint kbd {
   background: #2a2d36;
   border-radius: 4px;
   padding: 1px 5px;
@@ -89,11 +94,9 @@ body {
 }
 
 .eg-footer {
-  margin-top: 14px;
+  margin-top: 4px;
   font-size: 10.5px;
   color: #6f6f7a;
-  border-top: 1px solid #23262e;
-  padding-top: 10px;
   line-height: 1.5;
 }
 
@@ -105,17 +108,13 @@ body {
 }
 
 .eg-section {
-  background: #1b1e26;
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-top: 12px;
   font-size: 13px;
 }
 
 .eg-section-hint {
   font-size: 11px;
   color: #9a9aa5;
-  margin: 3px 0 10px;
+  margin: 3px 0 9px;
   line-height: 1.4;
 }
 
@@ -127,7 +126,7 @@ body {
 .eg-custom-add input {
   flex: 1;
   min-width: 0;
-  background: #111318;
+  background: #1b1e26;
   border: 1px solid #2a2d36;
   border-radius: 8px;
   padding: 7px 9px;
@@ -157,18 +156,20 @@ body {
 
 .eg-custom-list {
   list-style: none;
-  margin: 10px 0 0;
+  margin: 9px 0 0;
   padding: 0;
-  max-height: 110px;
+  max-height: 120px;
   overflow-y: auto;
 }
+
+.eg-custom-list:empty { margin: 0; }
 
 .eg-custom-list li {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: #111318;
+  background: #1b1e26;
   border-radius: 6px;
   padding: 6px 8px;
   margin-bottom: 6px;
@@ -185,10 +186,11 @@ body {
   background: none;
   border: none;
   color: #9a9aa5;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0 2px;
 }
 
 .eg-custom-remove:hover {
@@ -213,21 +215,10 @@ body {
 }
 
 .eg-secondary-btn-muted {
-  background: #2a2d36;
+  background: #1b1e26;
   color: #d8d8de;
 }
 
 .eg-secondary-btn-muted:hover {
-  background: #3a3d47;
-}
-
-.eg-section .eg-section-hint:last-child {
-  margin: 8px 0 0;
-}
-
-.eg-section .eg-section-hint kbd {
   background: #2a2d36;
-  border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 10px;
 }
