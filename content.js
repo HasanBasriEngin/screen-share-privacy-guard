@@ -162,6 +162,7 @@
 
     const parent = node.parentNode;
     const hasAddressMatch = matches.some((m) => m.label === 'Adres');
+    const hasNameMatch = matches.some((m) => m.label === 'İsim');
 
     const frag = document.createDocumentFragment();
     let cursor = 0;
@@ -178,12 +179,14 @@
     if (cursor < text.length) frag.appendChild(document.createTextNode(text.slice(cursor)));
     parent.replaceChild(frag, node);
 
-    // Adres eşleşmesi bir satırın sadece bir kısmını (anahtar kelimenin
-    // olduğu yeri) yakalayabilir; şehir/ilçe gibi anahtar kelimesiz devam
-    // satırları aynı metin node'unda olmadığından regex'e hiç girmez. Adresin
-    // TAMAMI görünmesin diye, eşleşmeyi içeren en yakın blok elemanının
-    // TAMAMINI da bulanıklaştırıyoruz (bkz. "Bilinçli tasarım kararları").
-    if (hasAddressMatch) {
+    // Adres/isim eşleşmesi bir satırın sadece bir kısmını yakalayabilir; aynı
+    // "adres kartı" içindeki şehir/ilçe (anahtar kelimesiz) veya isim gibi
+    // KARDEŞ satırlar ayrı metin node'larında/elemanlarında olduğundan
+    // regex'e hiç girmeyebilir. Bunun için sadece en dar kapsayıcıyı değil,
+    // genellikle "kart" seviyesine denk gelen İKİNCİ blok atasını da
+    // bulanıklaştırıyoruz — tek satırlık bir <p>/<div> yerine, o satırı da
+    // içeren daha geniş kart bulanıklaşır (bkz. "Bilinçli tasarım kararları").
+    if (hasAddressMatch || hasNameMatch) {
       blurContainingBlock(parent);
     }
   }
@@ -196,14 +199,19 @@
   function blurContainingBlock(startEl) {
     let el = startEl;
     let depth = 0;
-    while (el && el !== document.body && depth < 4) {
+    let firstBlock = null;
+    while (el && el !== document.body && depth < 8) {
       if (BLOCK_TAGS.has(el.tagName)) {
-        el.classList.add('ekran-guard-block-blur');
-        return;
+        if (firstBlock) {
+          el.classList.add('ekran-guard-block-blur');
+          return;
+        }
+        firstBlock = el;
       }
       el = el.parentElement;
       depth++;
     }
+    if (firstBlock) firstBlock.classList.add('ekran-guard-block-blur');
   }
 
   function revealTemporarily(el) {

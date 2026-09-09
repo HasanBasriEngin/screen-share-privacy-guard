@@ -55,8 +55,9 @@
   transition: filter 0.15s ease;
 }
 
-/* Bir adres eşleşmesi bulunan metnin en yakın blok kapsayıcısı — anahtar
-   kelimesiz devam satırları (şehir/ilçe gibi) da böylece gizlenmiş olur. */
+/* Bir adres/isim eşleşmesi bulunan metnin "kart" seviyesindeki blok
+   kapsayıcısı — kardeş satırlar (şehir/ilçe, isim gibi anahtar kelimesiz
+   devam satırları) da böylece aynı anda gizlenmiş olur. */
 .ekran-guard-block-blur {
   filter: blur(6px);
   transition: filter 0.15s ease;
